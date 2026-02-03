@@ -1,3 +1,7 @@
+//este componente sirve como carrito de compras
+//indica los productos comprados o en ejecucion
+//en un futuro podremos darle funcionalidad como abrirlo y mostrar los productos, eliminarlos, etc
+
 import { ShoppingCart } from 'lucide-react';
 
 export const CartWidget = () => {
