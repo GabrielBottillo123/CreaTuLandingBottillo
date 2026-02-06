@@ -1,45 +1,69 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 
-const Counter = () => {
-    const [counter, setCounter] = useState(1)
-    const handleSumar = () => setCounter(counter + 1)
-    const handleRestar = () => {
-        if (counter > 1) setCounter(counter - 1)
-    }
+/**
+ * ItemQuantitySelector Component
+ * @description Maneja la selección de cantidad para productos con validación de límites.
+ */
+const ItemQuantitySelector = ({ stock = 10, onAdd }) => {
+    const [quantity, setQuantity] = useState(1);
+
+    // Manejo de lógica de negocio encapsulado
+    const increment = () => {
+        if (quantity < stock) setQuantity(prev => prev + 1);
+    };
+
+    const decrement = () => {
+        if (quantity > 1) setQuantity(prev => prev - 1);
+    };
 
     useEffect(() => {
-        console.log('se ejecuto el efecto')
+        // Registro de actividad para auditoría de renderizado
+        console.info(`[Effect] Cantidad actualizada: ${quantity}`);
 
         return () => {
-            console.log('se desmonto')
-        }
-    }, [counter])
+            // Cleanup: Se ejecuta antes de la próxima actualización o destrucción
+            console.warn(`[Cleanup] Limpiando suscripciones del valor: ${quantity}`);
+        };
+    }, [quantity]);
 
     return (
-        <div className='flex flex-col w-75 items-center gap-4'>
-            <p className='text-center text-2xl font-bold'>{counter}</p>
+        <section className="flex flex-col w-full max-w-xs items-center gap-6 p-4 border rounded-xl bg-gray-50 shadow-sm">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-gray-500">Cantidad</h3>
             
-            <div className='flex gap-3'>
+            <div className="flex items-center gap-8">
+                <p className="text-4xl font-mono font-black text-gray-800 tabular-nums">
+                    {quantity.toString().padStart(2, '0')}
+                </p>
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-3">
                 <button 
-                    onClick={handleSumar} 
-                    className='bg-gray-500 text-white px-8 rounded-lg hover:bg-green-600 transition'
+                    onClick={decrement}
+                    disabled={quantity <= 1}
+                    className="flex h-10 w-12 items-center justify-center rounded-lg bg-white border border-red-200 text-red-600 transition-all hover:bg-red-50 disabled:opacity-30"
+                    aria-label="Disminuir cantidad"
                 >
-                    sumar
+                    -
                 </button>
+
                 <button 
-                    onClick={handleRestar} 
-                    className='bg-red-500 text-white px-8 py-2 rounded-lg hover:bg-red-600 transition'
+                    onClick={increment}
+                    disabled={quantity >= stock}
+                    className="flex h-10 w-12 items-center justify-center rounded-lg bg-white border border-green-200 text-green-600 transition-all hover:bg-green-50 disabled:opacity-30"
+                    aria-label="Aumentar cantidad"
                 >
-                    restar
+                    +
                 </button>
-                <button className='bg-white text-black px-8 py-3 rounded-lg border border-gray-300 hover:bg-gray-100 transition shadow-sm'>
-                    agregar al carrito
+
+                <button 
+                    onClick={() => onAdd && onAdd(quantity)}
+                    className="w-full mt-2 px-6 py-3 bg-black text-white text-xs font-bold uppercase rounded-md tracking-widest hover:bg-gray-800 transition-colors shadow-lg active:scale-95"
+                >
+                    Agregar al carrito
                 </button>
             </div>
-        </div>
-    )
-}
+        </section>
+    );
+};
 
-export default Counter
-
-//
+export default ItemQuantitySelector;
