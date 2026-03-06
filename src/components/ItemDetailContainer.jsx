@@ -1,25 +1,27 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { ItemDetail } from "./ItemDetail";
+import { getItem } from "../firebase/db";
 
 export const ItemDetailContainer = () => {
   const [item, setItem] = useState(null);
-  const { id } = useParams(); // Extrae el ID de la URL (ej: /item/5)
+  const { id } = useParams(); 
 
   useEffect(() => {
-    // Pedimos a la API solo ese producto por su ID
-    fetch(`https://dummyjson.com/products/${id}`)
-      .then((res) => res.json())
-      .then((data) => setItem(data))
-      .catch((err) => console.error(err));
+    getItem(id)
+      .then((data) => {
+        setItem(data);
+      })
+      .catch((err) => console.error("Error al obtener el producto:", err));
   }, [id]);
 
   return (
     <div className="pt-24 min-h-screen bg-gray-50 flex justify-center items-center">
-    {/*animacion copada de cargando...*/}
-      {item ? <ItemDetail item={item} /> : <p className="text-xl">Cargando producto...</p>}
+      {item ? (
+        <ItemDetail item={item} />
+      ) : (
+        <p className="text-xl animate-pulse">Cargando detalles...</p>
+      )}
     </div>
   );
 };
-
-//

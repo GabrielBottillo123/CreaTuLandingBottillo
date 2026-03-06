@@ -1,30 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useContext, useEffect } from 'react';
+import { CartContext } from '../Context/CartContext';
 
-/**
- * ItemQuantitySelector Component
- * @description Maneja la selección de cantidad para productos con validación de límites.
- */
-const ItemQuantitySelector = ({ stock = 10, onAdd }) => {
+const ItemQuantitySelector = ({ stock = 10, product }) => {
     const [quantity, setQuantity] = useState(1);
+    const { addToCart } = useContext(CartContext);
 
-    // Manejo de lógica de negocio encapsulado
-    const increment = () => {
-        if (quantity < stock) setQuantity(prev => prev + 1);
-    };
-
-    const decrement = () => {
-        if (quantity > 1) setQuantity(prev => prev - 1);
-    };
-
-    useEffect(() => {
-        // Registro de actividad para auditoría de renderizado
-        console.info(`[Effect] Cantidad actualizada: ${quantity}`);
-
-        return () => {
-            // Cleanup: Se ejecuta antes de la próxima actualización o destrucción
-            console.warn(`[Cleanup] Limpiando suscripciones del valor: ${quantity}`);
-        };
-    }, [quantity]);
+    const increment = () => { if (quantity < stock) setQuantity(prev => prev + 1); };
+    const decrement = () => { if (quantity > 1) setQuantity(prev => prev - 1); };
 
     return (
         <section className="flex flex-col w-full max-w-xs items-center gap-6 p-4 border rounded-xl bg-gray-50 shadow-sm">
@@ -37,26 +19,17 @@ const ItemQuantitySelector = ({ stock = 10, onAdd }) => {
             </div>
 
             <div className="flex flex-wrap justify-center gap-3">
-                <button 
-                    onClick={decrement}
-                    disabled={quantity <= 1}
-                    className="flex h-10 w-12 items-center justify-center rounded-lg bg-white border border-red-200 text-red-600 transition-all hover:bg-red-50 disabled:opacity-30"
-                    aria-label="Disminuir cantidad"
-                >
-                    -
-                </button>
+                <button onClick={decrement} disabled={quantity <= 1} className="flex h-10 w-12 items-center justify-center rounded-lg bg-white border border-red-200 text-red-600 transition-all hover:bg-red-50 disabled:opacity-30"> - </button>
+                <button onClick={increment} disabled={quantity >= stock} className="flex h-10 w-12 items-center justify-center rounded-lg bg-white border border-green-200 text-green-600 transition-all hover:bg-green-50 disabled:opacity-30"> + </button>
 
                 <button 
-                    onClick={increment}
-                    disabled={quantity >= stock}
-                    className="flex h-10 w-12 items-center justify-center rounded-lg bg-white border border-green-200 text-green-600 transition-all hover:bg-green-50 disabled:opacity-30"
-                    aria-label="Aumentar cantidad"
-                >
-                    +
-                </button>
-
-                <button 
-                    onClick={() => onAdd && onAdd(quantity)}
+                    onClick={() => {
+                        if (product) {
+                            addToCart(product, quantity);
+                        } else {
+                            console.error("No se pudo agregar el producto es undefined");
+                        }
+                    }}
                     className="w-full mt-2 px-6 py-3 bg-black text-white text-xs font-bold uppercase rounded-md tracking-widest hover:bg-gray-800 transition-colors shadow-lg active:scale-95"
                 >
                     Agregar al carrito
